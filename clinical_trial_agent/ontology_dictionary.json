@@ -1,0 +1,41 @@
+{
+    "Gender": [
+        "Male",
+        "Female"
+    ],
+    "Blood Type": [
+        "B-",
+        "A+",
+        "A-",
+        "O+",
+        "AB+",
+        "AB-",
+        "B+",
+        "O-"
+    ],
+    "Medical Condition": [
+        "Cancer",
+        "Obesity",
+        "Diabetes",
+        "Asthma",
+        "Hypertension",
+        "Arthritis"
+    ],
+    "Admission Type": [
+        "Urgent",
+        "Emergency",
+        "Elective"
+    ],
+    "Medication": [
+        "Paracetamol",
+        "Ibuprofen",
+        "Aspirin",
+        "Penicillin",
+        "Lipitor"
+    ],
+    "Test Results": [
+        "Normal",
+        "Inconclusive",
+        "Abnormal"
+    ]
+}

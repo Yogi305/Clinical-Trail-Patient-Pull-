@@ -1,0 +1,48 @@
+CLINICAL TRIAL PROTOCOL SUMMARY: DXT-2026-001
+Title: Efficacy of Novel Therapeutics in Older Asthmatic Females (Phase III)
+Sponsor: Agilisium Life Sciences Division
+Principal Investigator: Dr. Meera Krishnan, MD, FCCP
+
+1.0 BACKGROUND AND RATIONALE
+
+Asthma remains one of the most prevalent chronic respiratory conditions affecting the global population, with a particularly underrepresented demographic in clinical research: elderly females. Historical analyses of Phase I-III respiratory trials from the past decade reveal a systematic underenrollment of women aged 60 and above. This cohort frequently presents with complex comorbidity profiles that standard bronchodilator regimens fail to address adequately. The pharmacokinetic profile of the investigational compound DXT-4071 has demonstrated dose-dependent bronchodilation in murine models, with a favorable safety index across hepatic and renal clearance pathways.
+
+2.0 STUDY OBJECTIVES
+
+Primary: Evaluate reduction in acute exacerbation frequency over 24 weeks.
+Secondary: Assess improvement in FEV1/FVC ratio at 12-week interim analysis.
+Exploratory: Correlate treatment response with baseline inflammatory biomarker panels.
+
+Quality management activities are governed by the sponsor's Integrated Quality Management Plan, which implements a risk-based approach to clinical trial oversight consistent with ICH E6(R2) Section 5.0 requirements. The plan identifies critical data and processes, establishes risk indicators and thresholds for key quality parameters, and defines escalation pathways for quality events that may impact subject safety or data integrity. Centralized statistical monitoring is performed on an ongoing basis using validated algorithms that detect unusual data patterns, protocol deviations, and potential fraud indicators across all participating sites simultaneously.
+
+Biomarker analyses will employ validated liquid chromatography-tandem mass spectrometry methods for pharmacokinetic assessments and commercially available immunoassay platforms for pharmacodynamic biomarkers. All bioanalytical methods have been validated in accordance with FDA Guidance for Industry on Bioanalytical Method Validation (2018), with demonstrated accuracy, precision, selectivity, sensitivity, reproducibility, and stability within pre-defined acceptance criteria. Quality control samples spanning the calibration range are included in each analytical run, with acceptance criteria requiring that at least two-thirds of quality control samples fall within 15 percent of nominal concentration.
+
+Data integrity and subject privacy are ensured through a multi-layered security architecture that includes AES-256 encryption for data at rest, TLS 1.3 for data in transit, and role-based access controls implementing the principle of least privilege across all electronic data capture systems. The electronic case report form system has been validated in accordance with 21 CFR Part 11 requirements for electronic records and electronic signatures, with complete audit trail functionality that captures all data creation, modification, and deletion events with timestamps and user identification. Regular vulnerability assessments and penetration testing are conducted by an independent cybersecurity firm to ensure ongoing compliance with HIPAA Security Rule administrative, physical, and technical safeguard requirements.
+
+Data integrity and subject privacy are ensured through a multi-layered security architecture that includes AES-256 encryption for data at rest, TLS 1.3 for data in transit, and role-based access controls implementing the principle of least privilege across all electronic data capture systems. The electronic case report form system has been validated in accordance with 21 CFR Part 11 requirements for electronic records and electronic signatures, with complete audit trail functionality that captures all data creation, modification, and deletion events with timestamps and user identification. Regular vulnerability assessments and penetration testing are conducted by an independent cybersecurity firm to ensure ongoing compliance with HIPAA Security Rule administrative, physical, and technical safeguard requirements.
+
+Investigational product supply chain management follows the sponsor's validated cold-chain logistics framework, which maintains continuous temperature monitoring from the manufacturing facility through regional distribution centers to individual clinical sites. Temperature excursion management procedures specify acceptable deviation ranges, documentation requirements, and disposition decision pathways that involve both the sponsor's quality assurance unit and the qualified person responsible for batch certification. All investigational product shipments are accompanied by validated temperature monitoring devices that record ambient temperature at five-minute intervals throughout the distribution process.
+
+
+3.0 PATIENT ELIGIBILITY PARAMETERS
+
+Candidates must pass the following screening matrix before randomization:
+
+REQUIRED FOR ENROLLMENT (INCLUSION CRITERIA):
+- The patient must have a documented Medical Condition of "Asthma" in their Electronic Health Record.
+- Patient Age must be strictly 60 years or older at the time of initial screening visit.
+- Patient Gender must be explicitly "Female".
+- Recent laboratory Test Results must be classified as "Abnormal", reflecting compromised pulmonary function markers.
+
+DISQUALIFYING CONDITIONS (EXCLUSION CRITERIA):
+- Any patient actively taking or prescribed "Lipitor" (atorvastatin) as a current Medication is excluded due to confirmed CYP3A4 drug-drug interaction with the investigational compound.
+- Patients whose hospital Admission Type is recorded as "Emergency" are excluded, as emergency presentations confound baseline pulmonary assessments.
+
+
+The clinical operations team maintains a comprehensive communication plan that includes monthly investigator newsletters, quarterly investigator teleconferences, and an annual investigator meeting. A dedicated medical monitor is available around the clock for consultation on eligibility questions, adverse event management guidance, and protocol interpretation issues. The sponsor's medical information department provides a toll-free hotline for subjects and healthcare providers seeking information about the investigational product or the clinical trial program.
+
+Interim analyses will be conducted by an independent Data Safety Monitoring Board comprising at least three members with relevant clinical expertise, one biostatistician, and one ethicist. The DSMB will review unblinded safety data at pre-specified intervals and has the authority to recommend study termination for safety concerns, overwhelming efficacy, or futility based on pre-defined stopping boundaries calculated using the Lan-DeMets alpha-spending function with O'Brien-Fleming-type boundaries to preserve the overall Type I error rate at the two-sided 0.05 significance level.
+
+All participating clinical sites must maintain full compliance with the International Council for Harmonisation of Technical Requirements for Pharmaceuticals for Human Use Good Clinical Practice guidelines, specifically the E6(R2) consolidated guideline as amended in November 2016 and subsequent addenda. Principal investigators bear ultimate responsibility for ensuring that all study procedures are conducted in accordance with the approved protocol, applicable regulatory requirements, and institutional policies governing the protection of human research subjects. Any deviation from the protocol, whether classified as major or minor under the sponsor's deviation management framework, must be documented within 72 hours of discovery using the standardized Protocol Deviation Report Form and submitted to both the institutional review board and the sponsor's clinical operations team for review and determination of corrective and preventive action requirements.
+
+Biomarker analyses will employ validated liquid chromatography-tandem mass spectrometry methods for pharmacokinetic assessments and commercially available immunoassay platforms for pharmacodynamic biomarkers. All bioanalytical methods have been validated in accordance with FDA Guidance for Industry on Bioanalytical Method Validation (2018), with demonstrated accuracy, precision, selectivity, sensitivity, reproducibility, and stability within pre-defined acceptance criteria. Quality control samples spanning the calibration range are included in each analytical run, with acceptance criteria requiring that at least two-thirds of quality control samples fall within 15 percent of nominal concentration.

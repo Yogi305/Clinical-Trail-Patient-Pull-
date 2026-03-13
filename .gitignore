@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables
+.env
+
+# Data
+Healthcare Database/*.csv
+clinical_trial_agent/ontology.index
+clinical_trial_agent/ontology_mapping.pkl
+
+# IDEs
+.vscode/
+.idea/
