@@ -1,7 +1,7 @@
 import os
 import json
 import pandas as pd
-from typing import TypedDict, Dict, Any, Literal
+from typing import TypedDict, Dict, Any, Literal, Optional
 from dotenv import load_dotenv
 from langgraph.graph import StateGraph, END
 from langchain_groq import ChatGroq
@@ -28,22 +28,23 @@ class AgentState(TypedDict):
 # Initialize Specialized LLMs for Multi-Agent routing
 # 1.4 Initialize Models
 router_llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0) # Blazing fast, cheap for routing
-reasoning_llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0) # High param reasoning for extraction
+# Switch to a more stable model for structured output on Free Tier if 3.3 is failing
+reasoning_llm = ChatGroq(model="llama-3.1-70b-versatile", temperature=0) 
 
 # 1.5 Define Pydantic Schema for Strict Extraction
 class ClinicalCriteria(BaseModel):
-    age_min: int = Field(default=None, description="Minimum age requirement for the patient")
-    age_max: int = Field(default=None, description="Maximum age requirement for the patient")
-    gender: str = Field(default=None, description="Gender requirement, e.g., Male, Female")
-    medical_condition: str = Field(default=None, description="Required medical condition or diagnosis")
-    admission_type: str = Field(default=None, description="Required admission type, e.g., Urgent, Elective, Emergency")
-    blood_type: str = Field(default=None, description="Blood type requirement")
-    medication: str = Field(default=None, description="Required or exclusionary medication")
-    test_results: str = Field(default=None, description="Required test results status, e.g., Normal, Abnormal")
+    age_min: Optional[int] = Field(default=None, description="Minimum age requirement for the patient")
+    age_max: Optional[int] = Field(default=None, description="Maximum age requirement for the patient")
+    gender: Optional[str] = Field(default=None, description="Gender requirement, e.g., Male, Female")
+    medical_condition: Optional[str] = Field(default=None, description="Required medical condition or diagnosis")
+    admission_type: Optional[str] = Field(default=None, description="Required admission type, e.g., Urgent, Elective, Emergency")
+    blood_type: Optional[str] = Field(default=None, description="Blood type requirement")
+    medication: Optional[str] = Field(default=None, description="Required or exclusionary medication")
+    test_results: Optional[str] = Field(default=None, description="Required test results status, e.g., Normal, Abnormal")
     # Exclusion Criteria
-    exclude_medication: str = Field(default=None, description="Medication that DISQUALIFIES a patient, e.g., Lipitor")
-    exclude_test_results: str = Field(default=None, description="Test results that DISQUALIFY a patient, e.g., Normal")
-    exclude_admission_type: str = Field(default=None, description="Admission type that DISQUALIFIES a patient, e.g., Emergency")
+    exclude_medication: Optional[str] = Field(default=None, description="Medication that DISQUALIFIES a patient, e.g., Lipitor")
+    exclude_test_results: Optional[str] = Field(default=None, description="Test results that DISQUALIFY a patient, e.g., Normal")
+    exclude_admission_type: Optional[str] = Field(default=None, description="Admission type that DISQUALIFIES a patient, e.g., Emergency")
 
 # Load the structured dataset
 db_path = "https://clinicaldata-765366202501-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/healthcare_dataset.csv"
@@ -102,17 +103,22 @@ def run_extractor(user_input: str) -> dict:
                    "INCLUSION fields: Fill the standard fields (age_min, age_max, gender, medical_condition, etc.) with criteria patients MUST meet. "
                    "EXCLUSION fields: Fill the 'exclude_' prefixed fields with criteria that DISQUALIFY a patient from the trial. "
                    "For example: 'Patients on Lipitor are excluded' → exclude_medication='Lipitor'. "
-                   "'Test Results of Normal are rejected' → exclude_test_results='Normal'. "
                    "If a field is not explicitly mentioned as a patient requirement, leave it null/empty. Do not guess. "
                    "Return ONLY the structured output."),
         ("user", "{input}")
     ])
     
-    # Pass the text to Groq 70b with structured output
-    structured_llm = reasoning_llm.with_structured_output(ClinicalCriteria)
-    safe_input = get_safe_document_context(user_input)
-    response = invoke_with_rate_limit(prompt | structured_llm, {"input": safe_input})
-    return {"extracted_json": response.dict()}
+    try:
+        # Pass the text to Groq 70b with structured output
+        structured_llm = reasoning_llm.with_structured_output(ClinicalCriteria)
+        safe_input = get_safe_document_context(user_input)
+        response = invoke_with_rate_limit(prompt | structured_llm, {"input": safe_input})
+        return {"extracted_json": response.dict()}
+    except Exception as e:
+        # Fallback for structured output failures
+        print(f"Extraction Error: {str(e)}")
+        # Return empty criteria so the pipeline doesn't crash
+        return {"extracted_json": ClinicalCriteria().dict()}
 
 # NODE 2: The Entity Resolver (Ontology Mapper & Re-ranker)
 def run_mapper(extracted_json: dict, user_input: str) -> dict:
