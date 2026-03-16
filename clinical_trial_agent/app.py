@@ -421,18 +421,34 @@ with tab3:
                 pre_diagram_text = content.split('```mermaid')[0]
                 st.markdown(pre_diagram_text)
                 
-                # Render Mermaid via HTML
+                # Render Mermaid via HTML with custom transparent background CSS
                 components.html(
                     f"""
+                    <style>
+                        body {{
+                            background-color: transparent !important;
+                            margin: 0;
+                            padding: 0;
+                            color: white; 
+                        }}
+                    </style>
                     <div class="mermaid">
                         {mermaid_code}
                     </div>
                     <script type="module">
                         import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-                        mermaid.initialize({{ startOnLoad: true, theme: 'dark' }});
+                        mermaid.initialize({{ 
+                            startOnLoad: true, 
+                            theme: 'dark',
+                            themeVariables: {{
+                                'primaryColor': '#282a36',
+                                'primaryTextColor': '#f8f8f2',
+                                'lineColor': '#bd93f9'
+                            }}
+                        }});
                     </script>
                     """,
-                    height=500,
+                    height=800,
                 )
                 
                 # Render the markdown AFTER the diagram

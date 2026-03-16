@@ -6,8 +6,6 @@ Welcome to the deep dive of the **Clinical Trial Patient Matcher**. This project
 
 The system operates as a pipeline of specialized agents, each designed for a specific task to ensure optimal performance, low cost, and high accuracy.
 
-![System Architecture](architecture_diagram.png)
-
 ### 🔀 Workflow Diagram (Mermaid)
 
 ```mermaid
