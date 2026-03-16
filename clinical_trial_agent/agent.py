@@ -29,7 +29,7 @@ class AgentState(TypedDict):
 # 1.4 Initialize Models
 router_llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0) # Blazing fast, cheap for routing
 # Switch to a more stable model for structured output on Free Tier if 3.3 is failing
-reasoning_llm = ChatGroq(model="llama-3.1-70b-versatile", temperature=0) 
+reasoning_llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0) 
 
 # 1.5 Define Pydantic Schema for Strict Extraction
 class ClinicalCriteria(BaseModel):
@@ -115,10 +115,18 @@ def run_extractor(user_input: str) -> dict:
         response = invoke_with_rate_limit(prompt | structured_llm, {"input": safe_input})
         return {"extracted_json": response.dict()}
     except Exception as e:
+        import traceback
         # Fallback for structured output failures
-        print(f"Extraction Error: {str(e)}")
+        print(f"\n[ERROR] Extraction Exception Details:")
+        print(f"Type: {type(e)}")
+        print(f"Message: {str(e)}")
+        if hasattr(e, 'body'):
+            print(f"Body: {e.body}")
+        traceback.print_exc()
+        
         # Return empty criteria so the pipeline doesn't crash
         return {"extracted_json": ClinicalCriteria().dict()}
+
 
 # NODE 2: The Entity Resolver (Ontology Mapper & Re-ranker)
 def run_mapper(extracted_json: dict, user_input: str) -> dict:

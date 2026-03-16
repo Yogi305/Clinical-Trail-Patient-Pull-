@@ -15,6 +15,17 @@ with st.sidebar:
     st.markdown("Download these sample BRDs to test the agent workflow.")
     
     import requests
+    
+    @st.cache_data(show_spinner=False)
+    def fetch_sample_brd(url):
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return response.content
+        except Exception as e:
+            st.error(f"Could not load sample from S3: {e}")
+        return None
+
     samples = [
         {"name": "BRD 1: Straightforward (Exact)", "url": "https://clinicaldata-765366202501-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/BRD+1.docx"},
         {"name": "BRD 2: Semantic (Language)", "url": "https://clinicaldata-765366202501-ap-southeast-2-an.s3.ap-southeast-2.amazonaws.com/BRD+2.docx"},
@@ -23,19 +34,16 @@ with st.sidebar:
     ]
     
     for sample in samples:
-        try:
-            response = requests.get(sample["url"])
-            if response.status_code == 200:
-                file_name = sample["url"].split("/")[-1].replace("+", " ")
-                st.download_button(
-                    label=f"📥 {sample['name']}",
-                    data=response.content,
-                    file_name=file_name,
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    use_container_width=True
-                )
-        except Exception as e:
-            st.error(f"Could not load {sample['name']} from S3: {e}")
+        content = fetch_sample_brd(sample["url"])
+        if content:
+            file_name = sample["url"].split("/")[-1].replace("+", " ")
+            st.download_button(
+                label=f"📥 {sample['name']}",
+                data=content,
+                file_name=file_name,
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True
+            )
     st.divider()
     st.info("💡 **Tip:** After downloading, upload the file in the 'Agent Interface' tab to see the agentic magic.")
 
@@ -389,31 +397,27 @@ with tab2:
         st.warning("Database files not found. Please run `clean_database.py` first.")
 
 with tab3:
-    st.markdown("## 🏛️ System Architecture")
-    st.markdown("This proof-of-concept leverages a **Multi-Agent LangGraph** workflow to accurately match patients to clinical trials while avoiding LLM hallucinations.")
-    
-    st.markdown("### 🤖 Agent Roles & Responsibilities")
-    st.markdown('''
-    - **🛡️ Gatekeeper (LLaMA-3.1-8b):** Red-team defense. Rejects generic chat/hallucination attempts.
-    - **📄 Protocol Analyst (LLaMA-3.3-70b):** Extracts structured criteria using Pydantic schema enforcement.
-    - **🔗 Ontology Mapper (FAISS + LLM Re-Ranker):** Resolves raw clinical text to official database keys via Vector RAG.
-    - **🔍 Data Engine (Pandas):** 100% deterministic filtering with exact equality matches.
-    - **⚖️ Auditor:** Verifies constraints and formats the final executive summary.
-    ''')
-    
-    st.markdown("### 🔀 Workflow Diagram")
-    mermaid_code = """
-    graph TD
-        User[User Input: Protocol/BRD] --> Gatekeeper{Gatekeeper Node}
-        Gatekeeper -- Invalid --> Error[Error Node: Block Request]
-        Gatekeeper -- Valid --> Extractor[Protocol Analyst: Pydantic Extraction]
-        Extractor --> Mapper[Ontology Mapper: FAISS + LLM Re-Ranker]
-        Mapper -- Confident --> DataEngine[Data Engine: Deterministic Pandas Query]
-        Mapper -- Ambiguous --> HITL[Human-In-The-Loop: Manual Override]
-        HITL --> DataEngine
-        DataEngine --> Auditor[Auditor Node: Validation]
-        Auditor --> Final[Final Executive Summary]
-        Error --> Final
-    """
-    st.markdown(f"```mermaid\n{mermaid_code}\n```")
-    st.info("The application implements built-in API rate limiting (respecting free-tier limits) and robust conditional routing to ensure production-grade reliability.")
+    try:
+        # Load the architecture document we generated
+        journey_path = os.path.join(os.path.dirname(__file__), "architecture.md")
+        # Ensure we default to a standard message if not found
+        if not os.path.exists(journey_path):
+            # Try alternative path for deployed environments just in case
+            st.error("Architecture markdown file not found for local preview.")
+        else:
+            with open(journey_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            
+            # The embedded image has a local absolute path which Streamlit cannot serve directly via markdown.
+            # We must parse it out and use st.image, or just render the markdown. 
+            # Easiest is to split the content around the image tag if needed, but let's just let Streamlit render it 
+            # Actually, Streamlit blocks local file URIs in markdown for security. 
+            st.markdown(content)
+            
+            # Add the image explicitly at the top
+            img_path = os.path.join(os.path.dirname(__file__), "architecture_diagram.png")
+            if os.path.exists(img_path):
+                st.image(img_path, caption="System Architecture Diagram", use_container_width=True)
+                
+    except Exception as e:
+        st.error(f"Could not load architecture view: {e}")
