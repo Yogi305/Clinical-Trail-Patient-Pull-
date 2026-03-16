@@ -189,70 +189,80 @@ def run_mapper(extracted_json: dict, user_input: str) -> dict:
     return {"mapped_json": mapped_criteria, "faiss_details": faiss_details}
 
 # NODE 3: Deterministic Data Engine
-def run_query(mapped_json: dict) -> dict:
-    criteria = mapped_json
-    filtered_df = df.copy()
+def apply_pandas_filter(patient_database: pd.DataFrame, criteria: dict, field_name: str, df_column: str, is_exclusion: bool = False, transform=None) -> tuple[pd.DataFrame, str]:
+    """Shared utility to apply inclusive/exclusive filters to the dataframe, eliminating code duplication."""
+    if field_name not in criteria:
+        return patient_database, None
+        
+    val = criteria[field_name]
+    # Guard clause: ignore invalid, null, or ambiguous schema values immediately
+    if not val or str(val).lower() in ('none', 'n/a', 'any', 'null') or str(val).startswith("AMBIGUOUS_RAW:"):
+        return patient_database, None
+        
+    # Apply specific transformations (like lower/upper casing) if requested
+    val = transform(val) if transform else str(val)
+        
+    # Exclusion filter logic
+    if is_exclusion:
+        filtered = patient_database[patient_database[df_column] != val]
+        log = f"After `{df_column} != '{val}'` (EXCLUDED): **{len(filtered)}** patients remain."
+        return filtered, log
+        
+    # Inclusion filter logic (handle specific greater-than/less-than logic for numerical age)
+    if df_column == 'Age' and field_name == 'age_min':
+        filtered = patient_database[patient_database[df_column] >= val]
+        log = f"After `Age >= {val}`: **{len(filtered)}** patients remain."
+    elif df_column == 'Age' and field_name == 'age_max':
+        filtered = patient_database[patient_database[df_column] <= val]
+        log = f"After `Age <= {val}`: **{len(filtered)}** patients remain."
+    else:
+        filtered = patient_database[patient_database[df_column] == val]
+        log = f"After `{df_column} == '{val}'`: **{len(filtered)}** patients remain."
+        
+    return filtered, log
+
+
+def execute_deterministic_patient_search(mapped_criteria: dict) -> dict:
+    patient_database = df.copy()
     filter_log = []
     
-    def is_valid_schema(val):
-        return val and str(val).lower() not in ('none', 'n/a', 'any', 'null') and not str(val).startswith("AMBIGUOUS_RAW:")
+    filter_log.append(f"🟢 Starting with **{len(patient_database)}** patient records.")
     
-    filter_log.append(f"🟢 Starting with **{len(filtered_df)}** patient records.")
+    # Define mapping of structured JSON fields to Pandas DataFrame columns
+    inclusive_filters = [
+        ("medical_condition", "Medical Condition", None),
+        ("age_min", "Age", int),
+        ("age_max", "Age", int),
+        ("gender", "Gender", lambda x: str(x).title()),
+        ("admission_type", "Admission Type", None),
+        ("blood_type", "Blood Type", lambda x: str(x).upper()),
+        ("medication", "Medication", None),
+        ("test_results", "Test Results", None)
+    ]
     
-    if "medical_condition" in criteria and is_valid_schema(criteria["medical_condition"]):
-        filtered_df = filtered_df[filtered_df['Medical Condition'] == str(criteria['medical_condition'])]
-        filter_log.append(f"After `Medical Condition == '{criteria['medical_condition']}'`: **{len(filtered_df)}** patients remain.")
+    for field_name, df_column, transform in inclusive_filters:
+        patient_database, log = apply_pandas_filter(patient_database, mapped_criteria, field_name, df_column, False, transform)
+        if log: filter_log.append(log)
         
-    if "age_min" in criteria and criteria["age_min"]:
-        filtered_df = filtered_df[filtered_df['Age'] >= int(criteria['age_min'])]
-        filter_log.append(f"After `Age >= {criteria['age_min']}`: **{len(filtered_df)}** patients remain.")
-        
-    if "age_max" in criteria and criteria["age_max"]:
-        filtered_df = filtered_df[filtered_df['Age'] <= int(criteria['age_max'])]
-        filter_log.append(f"After `Age <= {criteria['age_max']}`: **{len(filtered_df)}** patients remain.")
-        
-    if "gender" in criteria and is_valid_schema(criteria["gender"]):
-        gender_cond = str(criteria['gender']).title()
-        filtered_df = filtered_df[filtered_df['Gender'] == gender_cond]
-        filter_log.append(f"After `Gender == '{gender_cond}'`: **{len(filtered_df)}** patients remain.")
-
-    if "admission_type" in criteria and is_valid_schema(criteria["admission_type"]):
-        filtered_df = filtered_df[filtered_df['Admission Type'] == str(criteria['admission_type'])]
-        filter_log.append(f"After `Admission Type == '{criteria['admission_type']}'`: **{len(filtered_df)}** patients remain.")
-    
-    if "blood_type" in criteria and is_valid_schema(criteria["blood_type"]):
-        filtered_df = filtered_df[filtered_df['Blood Type'] == str(criteria['blood_type']).upper()]
-        filter_log.append(f"After `Blood Type == '{criteria['blood_type']}'`: **{len(filtered_df)}** patients remain.")
-    
-    if "medication" in criteria and is_valid_schema(criteria["medication"]):
-        filtered_df = filtered_df[filtered_df['Medication'] == str(criteria['medication'])]
-        filter_log.append(f"After `Medication == '{criteria['medication']}'`: **{len(filtered_df)}** patients remain.")
-    
-    if "test_results" in criteria and is_valid_schema(criteria["test_results"]):
-        filtered_df = filtered_df[filtered_df['Test Results'] == str(criteria['test_results'])]
-        filter_log.append(f"After `Test Results == '{criteria['test_results']}'`: **{len(filtered_df)}** patients remain.")
-    
     # --- EXCLUSION FILTERS (NOT EQUAL) ---
     filter_log.append("🔴 **Applying Exclusion Criteria...**")
     
-    if "exclude_medication" in criteria and is_valid_schema(criteria["exclude_medication"]):
-        filtered_df = filtered_df[filtered_df['Medication'] != str(criteria['exclude_medication'])]
-        filter_log.append(f"After `Medication != '{criteria['exclude_medication']}'` (EXCLUDED): **{len(filtered_df)}** patients remain.")
+    exclusion_filters = [
+        ("exclude_medication", "Medication", None),
+        ("exclude_test_results", "Test Results", None),
+        ("exclude_admission_type", "Admission Type", None)
+    ]
     
-    if "exclude_test_results" in criteria and is_valid_schema(criteria["exclude_test_results"]):
-        filtered_df = filtered_df[filtered_df['Test Results'] != str(criteria['exclude_test_results'])]
-        filter_log.append(f"After `Test Results != '{criteria['exclude_test_results']}'` (EXCLUDED): **{len(filtered_df)}** patients remain.")
-
-    if "exclude_admission_type" in criteria and is_valid_schema(criteria["exclude_admission_type"]):
-        filtered_df = filtered_df[filtered_df['Admission Type'] != str(criteria['exclude_admission_type'])]
-        filter_log.append(f"After `Admission Type != '{criteria['exclude_admission_type']}'` (EXCLUDED): **{len(filtered_df)}** patients remain.")
-    
-    filter_log.append(f"🏁 **Final Result: {len(filtered_df)} eligible patients found.**")
+    for field_name, df_column, transform in exclusion_filters:
+        patient_database, log = apply_pandas_filter(patient_database, mapped_criteria, field_name, df_column, True, transform)
+        if log: filter_log.append(log)
+        
+    filter_log.append(f"🏁 **Final Result: {len(patient_database)} eligible patients found.**")
     
     return {
-        "eligible_patients": filtered_df,
+        "eligible_patients": patient_database,
         "filter_log": filter_log,
-        "total_matched": len(filtered_df)
+        "total_matched": len(patient_database)
     }
 
 # =====================================================================
@@ -274,7 +284,7 @@ def mapper_node(state: AgentState):
     return {"mapped_json": result["mapped_json"]}
 
 def query_node(state: AgentState):
-    result = run_query(state.get("mapped_json", state["extracted_json"]))
+    result = execute_deterministic_patient_search(state.get("mapped_json", state["extracted_json"]))
     return {"eligible_patients": str(result["eligible_patients"].to_dict())}
 
 def auditor_node(state: AgentState):
