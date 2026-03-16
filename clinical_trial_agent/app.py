@@ -422,31 +422,33 @@ with tab3:
                 st.markdown(pre_diagram_text)
                 
                 # Render Mermaid via HTML with custom transparent background CSS
+                # We strip mermaid_code and avoid indenting it in the f-string because 
+                # Mermaid is highly sensitive to leading spaces before `graph TD`.
                 components.html(
                     f"""
-                    <style>
-                        body {{
-                            background-color: transparent !important;
-                            margin: 0;
-                            padding: 0;
-                            color: white; 
-                        }}
-                    </style>
-                    <div class="mermaid">
-                        {mermaid_code}
-                    </div>
-                    <script type="module">
-                        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-                        mermaid.initialize({{ 
-                            startOnLoad: true, 
-                            theme: 'dark',
-                            themeVariables: {{
-                                'primaryColor': '#282a36',
-                                'primaryTextColor': '#f8f8f2',
-                                'lineColor': '#bd93f9'
-                            }}
-                        }});
-                    </script>
+<style>
+    body {{
+        background-color: transparent !important;
+        margin: 0;
+        padding: 0;
+        color: white; 
+    }}
+</style>
+<div class="mermaid">
+{mermaid_code.strip()}
+</div>
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({{ 
+        startOnLoad: true, 
+        theme: 'dark',
+        themeVariables: {{
+            'primaryColor': '#282a36',
+            'primaryTextColor': '#f8f8f2',
+            'lineColor': '#bd93f9'
+        }}
+    }});
+</script>
                     """,
                     height=800,
                 )
