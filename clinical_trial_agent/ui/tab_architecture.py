@@ -101,8 +101,6 @@ def render_tab_architecture():
 
 3. **Cloud Infrastructure & Optimization:** Hunting down bloated dependencies (like GPU drivers in PyTorch) and leveraging S3 for data separation are real-world production skills.
 
-4. **Resilience over Raw Performance:** In a multi-step agentic workflow, a timeout at step 4 ruins the entire experience. Retry logic is just as critical as the core AI prompts.
-
 ---
 *This project evolved from a simple scripted prompt into a resilient, cloud-deployed, multi-agent AI architecture capable of real-world clinical application.*
 """)
