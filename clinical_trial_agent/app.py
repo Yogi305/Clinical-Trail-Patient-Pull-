@@ -422,7 +422,7 @@ with tab3:
                 # Use columns to roughly center and constrain the image width
                 col1, col2, col3 = st.columns([1, 4, 1])
                 with col2:
-                    st.image(img_path, use_container_width=True)
+                    st.image(img_path, use_column_width=True)
                 
             # Render the bottom half of the markdown
             if len(parts) > 1:
