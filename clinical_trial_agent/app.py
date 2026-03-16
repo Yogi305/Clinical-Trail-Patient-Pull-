@@ -407,17 +407,45 @@ with tab3:
         else:
             with open(journey_path, "r", encoding="utf-8") as f:
                 content = f.read()
+
+            # Custom Mermaid Renderer (Since Streamlit 1.x doesn't always render ```mermaid blocks natively)
+            import streamlit.components.v1 as components
+            import re
             
-            # The embedded image has a local absolute path which Streamlit cannot serve directly via markdown.
-            # We must parse it out and use st.image, or just render the markdown. 
-            # Easiest is to split the content around the image tag if needed, but let's just let Streamlit render it 
-            # Actually, Streamlit blocks local file URIs in markdown for security. 
-            st.markdown(content)
+            # Extract mermaid code from the markdown
+            mermaid_match = re.search(r'```mermaid\n(.*?)```', content, re.DOTALL)
+            if mermaid_match:
+                mermaid_code = mermaid_match.group(1)
+                
+                # Render the markdown BEFORE the diagram
+                pre_diagram_text = content.split('```mermaid')[0]
+                st.markdown(pre_diagram_text)
+                
+                # Render Mermaid via HTML
+                components.html(
+                    f"""
+                    <div class="mermaid">
+                        {mermaid_code}
+                    </div>
+                    <script type="module">
+                        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+                        mermaid.initialize({{ startOnLoad: true, theme: 'dark' }});
+                    </script>
+                    """,
+                    height=500,
+                )
+                
+                # Render the markdown AFTER the diagram
+                post_diagram_text = content.split('```', 2)[-1]
+                st.markdown(post_diagram_text)
+            else:
+                # If no mermaid block found, just render standard markdown
+                st.markdown(content)
             
             # Add the image explicitly at the top
             img_path = os.path.join(os.path.dirname(__file__), "architecture_diagram.png")
             if os.path.exists(img_path):
-                st.image(img_path, caption="System Architecture Diagram", use_container_width=True)
+                st.image(img_path, caption="System Architecture Diagram", use_column_width=True)
                 
     except Exception as e:
         st.error(f"Could not load architecture view: {e}")
