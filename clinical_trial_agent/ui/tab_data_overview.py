@@ -25,7 +25,7 @@ def render_tab_data_overview():
     )
 
     base_dir = os.path.dirname(os.path.dirname(__file__))
-    ontology_path = os.path.join(base_dir, "ontology_dictionary.json")
+    ontology_path = os.path.join(base_dir, "resources", "ontology_dictionary.json")
 
     try:
         df_raw = pd.read_csv(_DB_PATH)

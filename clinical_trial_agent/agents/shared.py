@@ -36,8 +36,8 @@ patient_df = pd.read_csv(DB_PATH)
 
 # ── FAISS Ontology Vector Database ────────────────────────────────────────────
 _base_dir = os.path.dirname(os.path.dirname(__file__))  # clinical_trial_agent root
-faiss_index = faiss.read_index(os.path.join(_base_dir, "ontology.index"))
-with open(os.path.join(_base_dir, "ontology_mapping.pkl"), "rb") as f:
+faiss_index = faiss.read_index(os.path.join(_base_dir, "resources", "ontology.index"))
+with open(os.path.join(_base_dir, "resources", "ontology_mapping.pkl"), "rb") as f:
     ontology_mapping = pickle.load(f)
 
 # Sentence embedding model — used by the Ontology Mapper for vector similarity

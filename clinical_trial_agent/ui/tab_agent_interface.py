@@ -176,7 +176,7 @@ def _render_mapper_stage():
         updates_needed = {}
 
         base_dir = os.path.dirname(os.path.dirname(__file__))
-        ontology_path = os.path.join(base_dir, "ontology_dictionary.json")
+        ontology_path = os.path.join(base_dir, "resources", "ontology_dictionary.json")
         if os.path.exists(ontology_path):
             with open(ontology_path, "r") as f:
                 ontology = json.load(f)

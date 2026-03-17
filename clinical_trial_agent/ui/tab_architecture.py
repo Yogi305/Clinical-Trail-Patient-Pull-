@@ -28,7 +28,7 @@ def render_tab_architecture():
 
     # Render the architecture diagram image (centered and constrained)
     base_dir = os.path.dirname(os.path.dirname(__file__))
-    img_path = os.path.join(base_dir, "architecture_diagram.png")
+    img_path = os.path.join(base_dir, "resources", "architecture_diagram.png")
     if os.path.exists(img_path):
         col1, col2, col3 = st.columns([1, 4, 1])
         with col2:
