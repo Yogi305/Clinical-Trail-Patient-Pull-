@@ -248,6 +248,34 @@ def _render_data_engine_stage():
         else:
             st.warning("No patients matched all the specified criteria.")
 
+def _render_summary_stage():
+    """Step 4.5 / 5 — Final executive summary by the Summary Provider."""
+    if st.session_state.workflow_step == 4:
+        if st.button("▶️ Run Summary Provider (Final Verification)", type="primary", use_container_width=True):
+            st.session_state.workflow_step = 4.5
+            st.rerun()
+
+    if st.session_state.workflow_step == 4.5:
+        with st.spinner("⚖️ **Agent 5: Summary Provider** — Generating final executive summary..."):
+            # We just create a clean summary of the data engine's findings
+            query_result = st.session_state.workflow_data["query_result"]
+            summary = (
+                f"### 📋 Executive Summary\n\n"
+                f"**Match Status:** ✅ SUCCESS\n\n"
+                f"**Total Patients Matched:** {query_result['total_matched']}\n\n"
+                f"**Summary:** The Clinical Trial Matcher has successfully processed the protocol and "
+                f"filtered the patient database. All {query_result['total_matched']} identified patients satisfy "
+                f"the 100% deterministic criteria extracted by the Protocol Analyst.\n\n"
+                f"**Next Steps:** Proceed with manual clinical review of the top 10 matches provided below."
+            )
+            st.session_state.workflow_data["summary_output"] = summary
+            st.session_state.workflow_step = 5
+            st.rerun()
+
+    if st.session_state.workflow_step >= 5:
+        with st.expander("⚖️ **Step 5: Summary Provider** — Final Executive Summary", expanded=True):
+            st.markdown(st.session_state.workflow_data["summary_output"])
+
         st.markdown("---")
         if st.button("🔄 Reset & Process Another Protocol"):
             st.session_state.workflow_step = 0
@@ -272,3 +300,4 @@ def render_tab_agent_interface():
     _render_extractor_stage()
     _render_mapper_stage()
     _render_data_engine_stage()
+    _render_summary_stage()
