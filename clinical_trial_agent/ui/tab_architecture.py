@@ -20,21 +20,7 @@ def render_tab_architecture():
         "(LLMs) for complex reasoning with deterministic data engines to **eliminate AI hallucinations**."
     )
 
-    st.markdown("## 🖼️ Architecture Overview")
-    st.markdown(
-        "The system operates as a pipeline of specialized agents, each designed for a specific task "
-        "to ensure optimal performance, low cost, and high accuracy."
-    )
 
-    # Render the architecture diagram image (centered and constrained)
-    base_dir = os.path.dirname(os.path.dirname(__file__))
-    img_path = os.path.join(base_dir, "resources", "architecture_diagram.png")
-    if os.path.exists(img_path):
-        col1, col2, col3 = st.columns([1, 4, 1])
-        with col2:
-            st.image(img_path, use_column_width=True)
-    else:
-        st.warning("architecture_diagram.png not found in project root.")
 
     st.divider()
 
@@ -48,7 +34,7 @@ def render_tab_architecture():
 
 4. **🔍 Data Engine (Pandas):** The source of truth. LLMs *never* touch patient data directly. The mapped criteria are handed off to a deterministic Pandas engine — guaranteeing 100% data accuracy with zero hallucinated records.
 
-5. **⚖️ Auditor:** The final check. Verifies constraints were met and formats the output into a clean human-readable executive summary.
+5. **⚖️ Summary Provider:** The final check. Verifies constraints were met and formats the output into a clean human-readable executive summary.
 """)
 
     st.divider()
@@ -64,32 +50,13 @@ def render_tab_architecture():
 
     with st.expander("Challenge 2: API Rate Limits and Cloud Quotas", expanded=False):
         st.markdown("""
-**The Problem:** Sequential multi-LLM calls (Gatekeeper → Extractor → Mapper) exhausted Groq's free-tier RPM/TPM limits.
+**The Problem:** Attempting to process complex protocols with a single massive API call exhausted Groq's free-tier Request-Per-Minute (RPM) and Token-Per-Minute (TPM) limits.
 
 **The Fix:**
-- **Gatekeeper** fails fast on bad input, saving tokens.
-- **`@retry` with exponential backoff** (`tenacity`) gracefully handles quota resets.
-- **Context Truncation** (`get_safe_document_context`) prevents oversized documents from hitting the context window limit.
+- **Atomic Agent Requests:** Re-architected the workflow to make **individual API calls for each agent request** (Gatekeeper, Extractor, Mapper). This distributes the load and prevents hitting hard caps.
 """)
 
-    with st.expander("Challenge 3: Structured Output Failures (BadRequestError)", expanded=False):
-        st.markdown("""
-**The Problem:** For complex BRDs, the 70b model would occasionally fail to return valid JSON fitting the Pydantic schema.
 
-**The Fix:**
-- Made every field in `ClinicalCriteria` `Optional[]` — giving the LLM permission to leave missing criteria blank.
-- Added a `try-except` fallback that returns an empty schema instead of crashing the pipeline.
-- Switched to `llama-3.3-70b-versatile` for more reliable structured output on the free tier.
-""")
-
-    with st.expander("Challenge 4: EC2 Deployment — 'No space left on device'", expanded=False):
-        st.markdown("""
-**The Problem:** Docker builds on the free-tier EC2 t2.micro (8GB EBS) repeatedly ran out of disk space.
-
-**The Fix:**
-- Switched to the CPU-only PyTorch build (`--extra-index-url https://download.pytorch.org/whl/cpu`), reducing library size from ~3GB to ~150MB.
-- Moved all large data files (CSV database, BRD documents) to **AWS S3**, fetched via HTTP at runtime rather than bundled in the Docker image.
-""")
 
     st.divider()
 

@@ -52,7 +52,7 @@ def query_node(state: AgentState):
     result = execute_deterministic_patient_search(state.get("mapped_json", state["extracted_json"]))
     return {"eligible_patients": str(result["eligible_patients"].to_dict())}
 
-def auditor_node(state: AgentState):
+def summary_node(state: AgentState):
     summary = (
         "✅ **Validation Complete.** \n\n"
         "Based on the protocol, the Data Engine successfully found eligible patients. \n\n"
@@ -71,14 +71,14 @@ workflow.add_node("Error_Node", error_node)
 workflow.add_node("Extractor", extractor_node)
 workflow.add_node("Mapper", mapper_node)
 workflow.add_node("Data_Query", query_node)
-workflow.add_node("Auditor", auditor_node)
+workflow.add_node("Summary", summary_node)
 
 workflow.set_entry_point("Gatekeeper")
 workflow.add_conditional_edges("Gatekeeper", route_input, {"continue": "Extractor", "block": "Error_Node"})
 workflow.add_edge("Extractor", "Mapper")
 workflow.add_edge("Mapper", "Data_Query")
-workflow.add_edge("Data_Query", "Auditor")
+workflow.add_edge("Data_Query", "Summary")
 workflow.add_edge("Error_Node", END)
-workflow.add_edge("Auditor", END)
+workflow.add_edge("Summary", END)
 
 app_logic = workflow.compile()

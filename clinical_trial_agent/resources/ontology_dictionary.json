@@ -1,41 +1,41 @@
 {
     "Gender": [
-        "Male",
-        "Female"
+        "Female",
+        "Male"
     ],
     "Blood Type": [
-        "B-",
         "A+",
         "A-",
-        "O+",
         "AB+",
         "AB-",
         "B+",
+        "B-",
+        "O+",
         "O-"
     ],
     "Medical Condition": [
-        "Cancer",
-        "Obesity",
-        "Diabetes",
+        "Arthritis",
         "Asthma",
+        "Cancer",
+        "Diabetes",
         "Hypertension",
-        "Arthritis"
+        "Obesity"
     ],
     "Admission Type": [
-        "Urgent",
+        "Elective",
         "Emergency",
-        "Elective"
+        "Urgent"
     ],
     "Medication": [
-        "Paracetamol",
-        "Ibuprofen",
         "Aspirin",
-        "Penicillin",
-        "Lipitor"
+        "Ibuprofen",
+        "Lipitor",
+        "Paracetamol",
+        "Penicillin"
     ],
     "Test Results": [
-        "Normal",
+        "Abnormal",
         "Inconclusive",
-        "Abnormal"
+        "Normal"
     ]
 }

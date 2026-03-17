@@ -62,7 +62,7 @@ def profile_and_clean_database():
     print(f"Saved cleaned database to: {cleaned_db_path}")
     
     print("\n--- 6. Saving Extracted Ontology ---")
-    ontology_path = os.path.join(os.path.dirname(__file__), "ontology_dictionary.json")
+    ontology_path = os.path.join(os.path.dirname(__file__), "..", "resources", "ontology_dictionary.json")
     with open(ontology_path, "w") as f:
         json.dump(ontology, f, indent=4)
     print(f"Saved Ontology JSON to: {ontology_path}")
